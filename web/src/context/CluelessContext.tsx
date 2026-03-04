@@ -17,6 +17,7 @@ interface CluelessState {
   items: WardrobeItem[];
   outfits: Outfit[];
   stylePreferences: StylePreferences | null;
+  hydrated: boolean;
 }
 
 interface CluelessActions {
@@ -24,7 +25,9 @@ interface CluelessActions {
   updateItem: (id: string, patch: Partial<WardrobeItem>) => void;
   removeItem: (id: string) => void;
   addOutfit: (itemIds: string[], name?: string) => Outfit;
+  updateOutfit: (id: string, patch: Partial<Outfit>) => void;
   removeOutfit: (id: string) => void;
+  rateOutfit: (outfitId: string, rating: number) => void;
   saveStylePreferences: (prefs: StylePreferences) => void;
   incrementWearCount: (itemId: string) => void;
 }
@@ -116,6 +119,20 @@ export function CluelessProvider({ children }: { children: React.ReactNode }) {
     setOutfits((prev) => prev.filter((o) => o.id !== id));
   }, []);
 
+  const updateOutfit = useCallback((id: string, patch: Partial<Outfit>) => {
+    setOutfits((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, ...patch } : o))
+    );
+  }, []);
+
+  const rateOutfit = useCallback((outfitId: string, rating: number) => {
+    setOutfits((prev) =>
+      prev.map((o) =>
+        o.id === outfitId ? { ...o, rating: Math.min(5, Math.max(1, rating)) } : o
+      )
+    );
+  }, []);
+
   const saveStylePreferences = useCallback((prefs: StylePreferences) => {
     setStylePreferences({
       ...prefs,
@@ -138,11 +155,14 @@ export function CluelessProvider({ children }: { children: React.ReactNode }) {
       items,
       outfits,
       stylePreferences,
+      hydrated,
       addItem,
       updateItem,
       removeItem,
       addOutfit,
+      updateOutfit,
       removeOutfit,
+      rateOutfit,
       saveStylePreferences,
       incrementWearCount,
     }),
@@ -150,11 +170,14 @@ export function CluelessProvider({ children }: { children: React.ReactNode }) {
       items,
       outfits,
       stylePreferences,
+      hydrated,
       addItem,
       updateItem,
       removeItem,
       addOutfit,
+      updateOutfit,
       removeOutfit,
+      rateOutfit,
       saveStylePreferences,
       incrementWearCount,
     ]

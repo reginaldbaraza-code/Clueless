@@ -29,6 +29,33 @@ export function getRecommendedOutfits(
   return scored.slice(0, 10).map((s) => s.combo);
 }
 
+/** Simple numeric hash of a string for date-seeding */
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (h << 5) - h + s.charCodeAt(i);
+    h |= 0;
+  }
+  return Math.abs(h);
+}
+
+/**
+ * One outfit per day, stable for the same calendar day.
+ * Uses recommendations + a date-seed so everyone gets the same "pick" for the day.
+ */
+export function getDailyPick(
+  items: WardrobeItem[],
+  existingOutfits: Outfit[],
+  context: RecommendationContext,
+  date: Date = new Date()
+): WardrobeItem[] | null {
+  const combos = getRecommendedOutfits(items, existingOutfits, context);
+  if (combos.length === 0) return null;
+  const dayKey = date.toISOString().slice(0, 10); // YYYY-MM-DD
+  const index = hashString(dayKey) % combos.length;
+  return combos[index];
+}
+
 function filterByContext(
   items: WardrobeItem[],
   ctx: RecommendationContext

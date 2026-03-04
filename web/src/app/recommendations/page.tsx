@@ -2,17 +2,21 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useWeather } from "@/hooks/useWeather";
 import { useClueless } from "@/context/CluelessContext";
 import { getRecommendedOutfits } from "@/lib/recommendations";
+import { ItemImage } from "@/components/ItemImage";
+import { EmptyState } from "@/components/EmptyState";
+import { MapPin, Shirt, Briefcase, Crown, Dumbbell, RotateCcw, Lightbulb, Cloud, Coffee } from "lucide-react";
 import type { Formality } from "@/types/wardrobe";
 
-const FORMALITY_OPTIONS: { value: Formality; label: string }[] = [
-  { value: "casual", label: "Casual" },
-  { value: "smart-casual", label: "Smart casual" },
-  { value: "business", label: "Business" },
-  { value: "formal", label: "Formal" },
-  { value: "athletic", label: "Athletic" },
+const FORMALITY_OPTIONS: { value: Formality; label: string; Icon: typeof Shirt }[] = [
+  { value: "casual", label: "Casual", Icon: Coffee },
+  { value: "smart-casual", label: "Smart casual", Icon: Shirt },
+  { value: "business", label: "Business", Icon: Briefcase },
+  { value: "formal", label: "Formal", Icon: Crown },
+  { value: "athletic", label: "Athletic", Icon: Dumbbell },
 ];
 
 export default function RecommendationsPage() {
@@ -34,25 +38,27 @@ export default function RecommendationsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-amber-900 dark:text-amber-50">
+        <h1 className="font-heading flex items-center gap-2 text-2xl font-bold text-[var(--foreground)]">
+          <Lightbulb className="h-7 w-7 shrink-0 text-[var(--primary)]" />
           Recommendations
         </h1>
-        <p className="mt-1 text-stone-600 dark:text-stone-400">
+        <p className="mt-1 text-[var(--text-muted)]">
           Weather-aware, rule-based outfit suggestions. Enable location for live weather.
         </p>
       </div>
 
-      <section className="rounded-xl border border-amber-200/60 bg-white p-6 dark:bg-stone-900/50 dark:border-amber-800/60">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+      <section className="card p-6">
+        <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+          <Cloud className="h-4 w-4 shrink-0" />
           Context
         </h2>
         <div className="mt-4 space-y-4">
           <div>
-            <p className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">
+            <p className="mb-2 text-sm font-medium text-[var(--foreground)]">
               Weather
             </p>
             {weather ? (
-              <p className="text-stone-600 dark:text-stone-400">
+              <p className="text-[var(--text-muted)]">
                 {weather.locationName && `${weather.locationName} · `}
                 {weather.tempC}°C (feels like {weather.feelsLikeC}°C), {weather.description}.
                 {weather.rainProbabilityPercent > 50 && " Rain likely — we’ll favor waterproof pieces."}
@@ -63,45 +69,51 @@ export default function RecommendationsPage() {
                   type="button"
                   onClick={fetchByGeolocation}
                   disabled={weatherLoading}
-                  className="rounded-full bg-amber-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-700 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-600"
+                  className="btn-primary inline-flex items-center gap-2 disabled:opacity-50"
                 >
+                  <MapPin className="h-4 w-4 shrink-0" />
                   {weatherLoading ? "Getting location…" : "Use my location for weather"}
                 </button>
                 {weatherError && (
-                  <span className="text-sm text-red-600 dark:text-red-400">{weatherError}</span>
+                  <span className="text-sm text-red-600">{weatherError}</span>
                 )}
               </div>
             )}
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">
+            <p className="mb-2 text-sm font-medium text-[var(--foreground)]">
               Formality
             </p>
             <div className="flex flex-wrap gap-2">
-              {FORMALITY_OPTIONS.map((opt) => (
+              {FORMALITY_OPTIONS.map((opt) => {
+                const Icon = opt.Icon;
+                return (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => setFormality(opt.value)}
-                  className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition ${
                     formality === opt.value
-                      ? "bg-amber-600 text-white dark:bg-amber-500"
-                      : "bg-amber-100/80 text-amber-900 hover:bg-amber-200/80 dark:bg-amber-900/40 dark:text-amber-100 dark:hover:bg-amber-800/60"
+                      ? "bg-[var(--primary)] text-white"
+                      : "bg-[var(--primary-muted)] text-[var(--primary)] hover:opacity-90"
                   }`}
                 >
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
                   {opt.label}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
           <div>
-            <label className="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-300">
+            <label className="flex items-center gap-2 text-sm text-[var(--foreground)]">
               <input
                 type="checkbox"
                 checked={rotateCloset}
                 onChange={(e) => setRotateCloset(e.target.checked)}
-                className="rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                className="rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
               />
+              <RotateCcw className="h-4 w-4 shrink-0 text-[var(--text-muted)]" />
               Prefer underused items (rotate closet)
             </label>
           </div>
@@ -109,13 +121,18 @@ export default function RecommendationsPage() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+        <h2 className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+          <Shirt className="h-4 w-4 shrink-0" />
           Suggested outfits
         </h2>
         {recommendations.length === 0 ? (
-          <p className="rounded-xl border border-amber-200/60 bg-amber-50/50 p-6 text-stone-600 dark:border-amber-800/60 dark:bg-amber-900/20 dark:text-stone-400">
-            No combinations match the current filters. Try relaxing formality or adding more items to your closet.
-          </p>
+          <EmptyState
+            icon={Lightbulb}
+            title="No outfits match right now"
+            description="Try relaxing formality, adding more items to your closet, or enabling weather for better suggestions."
+            action={{ label: "Open closet", href: "/closet" }}
+            secondary={{ label: "Style quiz", href: "/style-quiz" }}
+          />
         ) : (
           <ul className="space-y-4">
             {recommendations.slice(0, 5).map((combo, idx) => (
@@ -124,14 +141,12 @@ export default function RecommendationsPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-200/60 bg-white p-4 shadow-sm dark:bg-stone-900/50 dark:border-amber-800/60"
+                className="card flex flex-wrap items-center gap-2 p-4"
               >
                 {combo.map((item) => (
-                  <span
-                    key={item.id}
-                    className="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-900 dark:bg-amber-900/50 dark:text-amber-100"
-                  >
-                    {item.name}
+                  <span key={item.id} className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--primary-muted)]/50 py-1 pl-1 pr-3">
+                    <ItemImage item={item} size="small" />
+                    <span className="text-sm font-medium text-[var(--primary)]">{item.name}</span>
                   </span>
                 ))}
               </motion.li>

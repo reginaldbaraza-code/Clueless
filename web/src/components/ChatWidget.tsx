@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useClueless } from "@/context/CluelessContext";
+import { MessageCircle, X, Send } from "lucide-react";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -80,13 +81,13 @@ export function ChatWidget() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-white shadow-lg transition hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 md:bottom-6"
+        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--primary)] text-white shadow-[var(--shadow-lg)] transition hover:bg-[var(--primary-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 md:bottom-6"
         aria-label={open ? "Close chat" : "Open stylist chat"}
       >
         {open ? (
-          <span className="text-xl">×</span>
+          <X className="h-6 w-6" />
         ) : (
-          <span className="text-2xl" aria-hidden>💬</span>
+          <MessageCircle className="h-6 w-6" aria-hidden />
         )}
       </button>
 
@@ -97,19 +98,19 @@ export function ChatWidget() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-20 right-4 z-40 flex h-[420px] w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-amber-200/60 bg-white shadow-xl dark:border-amber-800/60 dark:bg-stone-900"
+            className="fixed bottom-20 right-4 z-40 flex h-[420px] w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-lg)]"
           >
-            <div className="border-b border-amber-200/60 bg-amber-50/80 px-4 py-3 dark:border-amber-800/60 dark:bg-amber-900/20">
-              <h3 className="font-semibold text-amber-900 dark:text-amber-100">
+            <div className="border-b border-[var(--border)] bg-[var(--primary-muted)]/50 px-4 py-3">
+              <h3 className="font-heading font-semibold text-[var(--foreground)]">
                 Clueless stylist
               </h3>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
+              <p className="text-xs text-[var(--text-muted)]">
                 Outfit & style advice
               </p>
             </div>
             <div
               ref={listRef}
-              className="flex-1 overflow-y-auto p-4 space-y-3"
+              className="flex-1 space-y-3 overflow-y-auto p-4"
             >
               {messages.map((m, i) => (
                 <div
@@ -119,8 +120,8 @@ export function ChatWidget() {
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${
                       m.role === "user"
-                        ? "bg-amber-600 text-white dark:bg-amber-500"
-                        : "bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200"
+                        ? "bg-[var(--primary)] text-white"
+                        : "bg-[var(--surface-muted)] text-[var(--foreground)]"
                     }`}
                   >
                     {m.content}
@@ -129,7 +130,7 @@ export function ChatWidget() {
               ))}
               {loading && (
                 <div className="flex justify-start">
-                  <div className="rounded-2xl bg-stone-100 px-4 py-2 text-sm text-stone-500 dark:bg-stone-800 dark:text-stone-400">
+                  <div className="rounded-2xl bg-[var(--surface-muted)] px-4 py-2 text-sm text-[var(--text-muted)]">
                     Thinking…
                   </div>
                 </div>
@@ -140,7 +141,7 @@ export function ChatWidget() {
                 e.preventDefault();
                 send();
               }}
-              className="border-t border-amber-200/60 p-3 dark:border-amber-800/60"
+              className="border-t border-[var(--border)] p-3"
             >
               <div className="flex gap-2">
                 <input
@@ -148,14 +149,15 @@ export function ChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask what to wear..."
-                  className="flex-1 rounded-xl border border-amber-200/80 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder-stone-400 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400 dark:border-amber-800 dark:bg-stone-800 dark:text-stone-100"
+                  className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
                   disabled={loading}
                 />
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
-                  className="rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-amber-700 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-600"
+                  className="btn-primary inline-flex items-center gap-2 disabled:opacity-50"
                 >
+                  <Send className="h-4 w-4 shrink-0" />
                   Send
                 </button>
               </div>

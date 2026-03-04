@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { AppNav } from "@/components/AppNav";
+import { Outfit, DM_Sans } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import { Header } from "@/components/Header";
 import { Providers } from "@/components/Providers";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -27,18 +36,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[var(--cream)] antialiased text-stone-800 dark:text-stone-100`}
+        className={`${outfit.variable} ${dmSans.variable} ${geistMono.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased`}
       >
-        <header className="sticky top-0 z-40 border-b border-amber-200/60 bg-cream/95 backdrop-blur supports-[backdrop-filter]:bg-cream/80">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-            <a href="/" className="text-xl font-bold tracking-tight text-amber-900 dark:text-amber-100">
-              Clueless
-            </a>
-            <AppNav />
-          </div>
-        </header>
-        <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 md:pb-8">
-          <Providers>{children}</Providers>
+        <Header />
+        <main className="mx-auto min-h-[60vh] max-w-6xl px-4 pb-24 pt-8 md:pb-10 md:pt-10">
+          <Providers>
+            <ScrollToTop />
+            {children}
+          </Providers>
         </main>
       </body>
     </html>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useClueless } from "@/context/CluelessContext";
+import { ChevronRight, ChevronLeft, Check, Sparkles, Palette, Building2, Sliders } from "lucide-react";
 import type { Aesthetic, StylePreferences } from "@/types/style";
 
 const AESTHETICS: { value: Aesthetic; label: string }[] = [
@@ -68,10 +69,11 @@ export default function StyleQuizPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-amber-900 dark:text-amber-50">
+        <h1 className="font-heading flex items-center gap-2 text-2xl font-bold text-[var(--foreground)]">
+          <Palette className="h-7 w-7 shrink-0 text-[var(--primary)]" />
           Style quiz
         </h1>
-        <p className="mt-1 text-stone-600 dark:text-stone-400">
+        <p className="mt-1 text-[var(--text-muted)]">
           Tell us your vibe so we can recommend outfits you’ll love.
         </p>
       </div>
@@ -81,14 +83,15 @@ export default function StyleQuizPage() {
           key={step}
           initial={{ opacity: 0, x: 8 }}
           animate={{ opacity: 1, x: 0 }}
-          className="rounded-xl border border-amber-200/60 bg-white p-6 dark:bg-stone-900/50 dark:border-amber-800/60"
+          className="card p-6"
         >
           {step === 1 && (
             <>
-              <h2 className="text-lg font-semibold text-amber-900 dark:text-amber-100">
+              <h2 className="font-heading flex items-center gap-2 text-lg font-semibold text-[var(--foreground)]">
+                <Sparkles className="h-5 w-5 shrink-0 text-[var(--primary)]" />
                 What aesthetics do you love?
               </h2>
-              <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
                 Pick one or more.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
@@ -99,8 +102,8 @@ export default function StyleQuizPage() {
                     onClick={() => toggleAesthetic(opt.value)}
                     className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                       aesthetics.includes(opt.value)
-                        ? "bg-amber-600 text-white dark:bg-amber-500"
-                        : "bg-amber-100/80 text-amber-900 hover:bg-amber-200/80 dark:bg-amber-900/40 dark:text-amber-100 dark:hover:bg-amber-800/60"
+                        ? "bg-[var(--primary)] text-white"
+                        : "bg-[var(--primary-muted)] text-[var(--primary)] hover:opacity-90"
                     }`}
                   >
                     {opt.label}
@@ -108,12 +111,9 @@ export default function StyleQuizPage() {
                 ))}
               </div>
               <div className="mt-8 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="rounded-full bg-amber-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600"
-                >
+                <button type="button" onClick={() => setStep(2)} className="btn-primary inline-flex items-center gap-2">
                   Next
+                  <ChevronRight className="h-4 w-4 shrink-0" />
                 </button>
               </div>
             </>
@@ -121,10 +121,11 @@ export default function StyleQuizPage() {
 
           {step === 2 && (
             <>
-              <h2 className="text-lg font-semibold text-amber-900 dark:text-amber-100">
+              <h2 className="font-heading flex items-center gap-2 text-lg font-semibold text-[var(--foreground)]">
+                <Building2 className="h-5 w-5 shrink-0 text-[var(--primary)]" />
                 What’s your lifestyle?
               </h2>
-              <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
                 Helps us tailor occasions (work, weekend, etc.).
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
@@ -135,8 +136,8 @@ export default function StyleQuizPage() {
                     onClick={() => setLifestyle(opt.value)}
                     className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                       lifestyle === opt.value
-                        ? "bg-amber-600 text-white dark:bg-amber-500"
-                        : "bg-amber-100/80 text-amber-900 hover:bg-amber-200/80 dark:bg-amber-900/40 dark:text-amber-100 dark:hover:bg-amber-800/60"
+                        ? "bg-[var(--primary)] text-white"
+                        : "bg-[var(--primary-muted)] text-[var(--primary)] hover:opacity-90"
                     }`}
                   >
                     {opt.label}
@@ -144,20 +145,18 @@ export default function StyleQuizPage() {
                 ))}
               </div>
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="text-sm font-medium text-amber-800 hover:underline dark:text-amber-200"
-                >
+                <button type="button" onClick={() => setStep(1)} className="flex items-center gap-1.5 text-sm font-medium text-[var(--primary)] hover:underline">
+                  <ChevronLeft className="h-4 w-4 shrink-0" />
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(3)}
                   disabled={!lifestyle}
-                  className="rounded-full bg-amber-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-amber-700 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-600"
+                  className="btn-primary inline-flex items-center gap-2 disabled:opacity-50"
                 >
                   Next
+                  <ChevronRight className="h-4 w-4 shrink-0" />
                 </button>
               </div>
             </>
@@ -165,10 +164,11 @@ export default function StyleQuizPage() {
 
           {step === 3 && (
             <>
-              <h2 className="text-lg font-semibold text-amber-900 dark:text-amber-100">
+              <h2 className="font-heading flex items-center gap-2 text-lg font-semibold text-[var(--foreground)]">
+                <Sliders className="h-5 w-5 shrink-0 text-[var(--primary)]" />
                 Default formality
               </h2>
-              <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
                 When we don’t know the occasion, we’ll lean toward this.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
@@ -179,8 +179,8 @@ export default function StyleQuizPage() {
                     onClick={() => setDefaultFormality(opt.value)}
                     className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                       defaultFormality === opt.value
-                        ? "bg-amber-600 text-white dark:bg-amber-500"
-                        : "bg-amber-100/80 text-amber-900 hover:bg-amber-200/80 dark:bg-amber-900/40 dark:text-amber-100 dark:hover:bg-amber-800/60"
+                        ? "bg-[var(--primary)] text-white"
+                        : "bg-[var(--primary-muted)] text-[var(--primary)] hover:opacity-90"
                     }`}
                   >
                     {opt.label}
@@ -188,19 +188,17 @@ export default function StyleQuizPage() {
                 ))}
               </div>
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="text-sm font-medium text-amber-800 hover:underline dark:text-amber-200"
-                >
+                <button type="button" onClick={() => setStep(2)} className="flex items-center gap-1.5 text-sm font-medium text-[var(--primary)] hover:underline">
+                  <ChevronLeft className="h-4 w-4 shrink-0" />
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={handleComplete}
                   disabled={!defaultFormality}
-                  className="rounded-full bg-amber-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-amber-700 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-600"
+                  className="btn-primary inline-flex items-center gap-2 disabled:opacity-50"
                 >
+                  <Check className="h-4 w-4 shrink-0" />
                   Save my style
                 </button>
               </div>
@@ -211,18 +209,17 @@ export default function StyleQuizPage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl border border-amber-200/60 bg-amber-50/50 p-8 text-center dark:border-amber-800/60 dark:bg-amber-900/20"
+          className="card bg-[var(--primary-muted)]/30 p-8 text-center"
         >
-          <p className="text-lg font-semibold text-amber-900 dark:text-amber-100">
+          <p className="font-heading flex items-center justify-center gap-2 text-lg font-semibold text-[var(--foreground)]">
+            <Check className="h-5 w-5 shrink-0 text-[var(--primary)]" />
             You’re all set!
           </p>
-          <p className="mt-2 text-stone-600 dark:text-stone-400">
+          <p className="mt-2 text-[var(--text-muted)]">
             We’ll use your preferences to improve recommendations. Head to your closet or get a daily pick.
           </p>
-          <a
-            href="/recommendations"
-            className="mt-6 inline-block rounded-full bg-amber-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600"
-          >
+          <a href="/recommendations" className="btn-primary mt-6 inline-flex items-center gap-2">
+            <Sparkles className="h-4 w-4 shrink-0" />
             Get recommendations
           </a>
         </motion.div>
