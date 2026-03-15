@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "clueless",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,11 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/genai": "^1.0.0",
     "framer-motion": "^12.34.3",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
-    "openai": "^6.25.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },

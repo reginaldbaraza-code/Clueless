@@ -58,7 +58,7 @@ Inspired by the iconic digital closet scene from *Clueless*. This doc is the sin
 |-------|--------|
 | **Frontend** | Next.js, Tailwind CSS, Framer Motion; React Native later |
 | **Backend** | Node.js + Express or Python + FastAPI (for ML-heavy) |
-| **AI/ML** | Python microservice: TensorFlow/PyTorch, OpenAI Vision (tagging), scikit-learn (preferences) |
+| **AI/ML** | Gemini (AI stylist chat), Python microservice: TensorFlow/PyTorch, OpenAI Vision (tagging), scikit-learn (preferences) |
 | **Database** | PostgreSQL (wardrobe), MongoDB (flexible tags), Redis (sessions), S3 (images) |
 | **Hosting** | Vercel (frontend), AWS/GCP (backend + ML), Firebase (auth) |
 
