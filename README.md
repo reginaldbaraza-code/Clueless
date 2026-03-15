@@ -22,9 +22,16 @@ Open [http://localhost:3000](http://localhost:3000).
 
 The app lives at the **repo root**. Connect the repo in Vercel with default settings (Framework: Next.js); no root directory override needed.
 
-### 2. Make sure build settings are correct
+## Repo structure
+
+- **`src/`** – Next.js app (React, Tailwind, Framer Motion, Supabase auth)
+- **`docs/ROADMAP.md`** – Product blueprint
+
+## Environment
+
 Create `.env.local` in the repo root and add (optional for MVP):
 
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` – [Supabase](https://supabase.com/dashboard/project/_/settings/api) for login/signup
 - `GEMINI_API_KEY` – [Google AI Studio](https://aistudio.google.com/apikey) for the AI stylist chat
 - `REPLICATE_API_TOKEN` – [Replicate](https://replicate.com/account/api-tokens) for virtual try-on
 - `NEXT_PUBLIC_OPENWEATHER_API_KEY` – [OpenWeather](https://openweathermap.org/api) for weather-based suggestions

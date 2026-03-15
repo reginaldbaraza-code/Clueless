@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, DM_Sans } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
 import { Header } from "@/components/Header";
 import { Providers } from "@/components/Providers";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -38,13 +39,15 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${dmSans.variable} ${geistMono.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased`}
       >
-        <Header />
-        <main className="mx-auto min-h-[60vh] max-w-6xl px-4 pb-24 pt-8 md:pb-10 md:pt-10">
-          <Providers>
-            <ScrollToTop />
-            {children}
-          </Providers>
-        </main>
+        <AuthProvider>
+          <Header />
+          <main className="mx-auto min-h-[60vh] max-w-6xl px-4 pb-24 pt-8 md:pb-10 md:pt-10">
+            <Providers>
+              <ScrollToTop />
+              {children}
+            </Providers>
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );
