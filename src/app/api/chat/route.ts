@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-flash",
       contents,
       config: {
         systemInstruction,
@@ -64,8 +64,25 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ message: text });
-  } catch (err) {
+  } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
+    const status = (err as { status?: number })?.status;
+    const code = (err as { code?: number })?.code;
+
+    // Rate limit / quota exceeded (429 or RESOURCE_EXHAUSTED)
+    if (status === 429 || code === 429 || message.includes("RESOURCE_EXHAUSTED") || message.includes("quota")) {
+      const retryMatch = message.match(/retry in ([\d.]+)s/i);
+      const retrySeconds = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : 30;
+      return NextResponse.json(
+      {
+        error: "rate_limit",
+        message: "The AI stylist is getting a lot of requests. Please try again in a minute.",
+        retryAfterSeconds: retrySeconds,
+      },
+      { status: 429 }
+      );
+    }
+
     return NextResponse.json(
       { error: "gemini_error", message },
       { status: 500 }
