@@ -64,9 +64,9 @@ export default function PlanWeekPage() {
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
               {pick && pick.length > 0 ? (
                 pick.map((item) => (
-                  <span key={item.id} className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-muted)]/50 py-0.5 pl-0.5 pr-2">
+                  <span key={item.id} className="flex max-w-full items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-muted)]/50 py-1 pl-1 pr-2">
                     <ItemImage item={item} size="small" />
-                    <span className="truncate text-xs font-medium text-[var(--foreground)]">{item.name}</span>
+                    <span className="min-w-0 truncate text-xs font-medium text-[var(--foreground)]">{item.name}</span>
                   </span>
                 ))
               ) : (

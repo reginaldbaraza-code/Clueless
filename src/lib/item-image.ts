@@ -13,12 +13,12 @@ const UNSPLASH_BY_CATEGORY: Record<ClothingCategory, string> = {
 
 const UNSPLASH_BASE = "https://images.unsplash.com";
 
-/** Returns image URL for an item: use custom imageUrl if set, else a category image */
+/** Returns image URL for an item: use custom imageUrl if set, else a category placeholder */
 export function getItemImageUrl(item: { imageUrl: string; category: ClothingCategory }, size?: number): string {
   const w = size ?? 400;
   if (item.imageUrl?.trim()) {
     return item.imageUrl.trim();
   }
   const slug = UNSPLASH_BY_CATEGORY[item.category] ?? UNSPLASH_BY_CATEGORY.top;
-  return `${UNSPLASH_BASE}/photo-${slug}?w=${w}&h=${w}&fit=crop`;
+  return `${UNSPLASH_BASE}/photo-${slug}?w=${w}&h=${w}&fit=crop&q=80`;
 }

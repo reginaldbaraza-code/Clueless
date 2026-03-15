@@ -106,7 +106,7 @@ export default function TryOnPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-heading flex items-center gap-2 text-2xl font-bold text-[var(--foreground)]">
-          <Sparkles className="h-7 w-7 shrink-0 text-[var(--primary)]" />
+          <Sparkles className="h-7 w-7 shrink-0 text-[var(--primary)]" aria-hidden />
           Virtual try-on
         </h1>
         <p className="mt-1 text-[var(--text-muted)]">
@@ -128,18 +128,22 @@ export default function TryOnPage() {
           />
           {personDataUrl ? (
             <div className="relative">
-              <img
-                src={personDataUrl}
-                alt="You"
-                className="w-full rounded-xl border border-[var(--border)] object-contain bg-[var(--surface-muted)]/50"
-                style={{ maxHeight: 360, objectFit: "contain" }}
-              />
+              <div className="aspect-[3/4] max-h-[360px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface-muted)]/50">
+                <img
+                  src={personDataUrl}
+                  alt="Your photo for virtual try-on"
+                  width={360}
+                  height={480}
+                  className="h-full w-full object-contain"
+                  decoding="async"
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="mt-2 inline-flex items-center gap-1.5 text-sm text-[var(--primary)] hover:underline"
               >
-                <RefreshCw className="h-4 w-4 shrink-0" />
+                <RefreshCw className="h-4 w-4 shrink-0" aria-hidden />
                 Change photo
               </button>
             </div>
@@ -149,7 +153,7 @@ export default function TryOnPage() {
               onClick={() => fileInputRef.current?.click()}
               className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--border-strong)] bg-[var(--surface-muted)]/30 text-[var(--text-muted)] transition hover:border-[var(--primary)] hover:bg-[var(--primary-muted)]/20"
             >
-                <Camera className="h-10 w-10 shrink-0" />
+                <Camera className="h-10 w-10 shrink-0" aria-hidden />
                 <span className="text-sm font-medium">Tap to upload</span>
                 <span className="text-xs">Full body or upper body, front-facing</span>
               </button>
@@ -164,7 +168,7 @@ export default function TryOnPage() {
                 Add tops, bottoms, or dresses in your closet first.
               </p>
               <Link href="/closet" className="btn-primary inline-flex items-center gap-2">
-                <Shirt className="h-4 w-4 shrink-0" />
+                <Shirt className="h-4 w-4 shrink-0" aria-hidden />
                 Open closet
               </Link>
             </>
@@ -201,7 +205,7 @@ export default function TryOnPage() {
             disabled={!canTryOn}
             className="btn-primary inline-flex w-full items-center justify-center gap-2 disabled:opacity-50"
           >
-            <Sparkles className="h-4 w-4 shrink-0" />
+            <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
             {status === "loading" ? "Generating… (about 15–20 sec)" : "Try on"}
           </button>
         </section>
@@ -220,12 +224,15 @@ export default function TryOnPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mt-4"
+              className="mt-4 aspect-[3/4] max-h-[480px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface-muted)]/50"
             >
               <img
                 src={resultImageUrl}
-                alt="Virtual try-on result"
-                className="w-full rounded-xl border border-[var(--border)] object-contain bg-[var(--surface-muted)]/50"
+                alt="Virtual try-on result showing the selected garment on you"
+                width={360}
+                height={480}
+                className="h-full w-full object-contain"
+                decoding="async"
               />
             </motion.div>
           )}

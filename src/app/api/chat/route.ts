@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 
-const SYSTEM_PROMPT = `You are the Clueless stylist: a friendly, witty AI assistant inside a digital closet app. You help users with outfit ideas, style advice, and what to wear for weather or occasions. Keep replies concise (2–4 short paragraphs max). Use a warm, slightly playful tone—in the spirit of the movie Clueless. You can reference their closet when they ask (e.g. "with your trench and sneakers") if context is provided. Don't make up specific item names they don't have; if you don't know their closet, give general advice. Never be preachy; keep it fun and practical.`;
+/** Short system prompt to save input tokens */
+const SYSTEM_PROMPT = `You are a friendly stylist in a closet app. Give brief outfit/style advice (1–2 short paragraphs). Warm, playful tone. Use closet context if given; otherwise give general tips.`;
+
+/** Max conversation turns to send (user+model pairs) to limit input tokens */
+const MAX_MESSAGES = 6;
 
 export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -28,33 +32,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { messages, context } = body;
-  if (!Array.isArray(messages) || messages.length === 0) {
+  const { messages: rawMessages, context } = body;
+  if (!Array.isArray(rawMessages) || rawMessages.length === 0) {
     return NextResponse.json({ error: "messages array required" }, { status: 400 });
   }
 
+  const filtered = rawMessages.filter((m) => m.role !== "system");
+  const messages = filtered.slice(-MAX_MESSAGES);
+
   const systemInstruction = context
-    ? `${SYSTEM_PROMPT}\n\nCurrent context about the user's closet and style (use this to personalize):\n${context}`
+    ? `${SYSTEM_PROMPT}\nContext: ${context.slice(0, 400)}`
     : SYSTEM_PROMPT;
 
-  // Map to Gemini contents: user -> user, assistant -> model
-  const contents = messages
-    .filter((m) => m.role !== "system")
-    .map((m) => ({
-      role: m.role === "assistant" ? ("model" as const) : ("user" as const),
-      parts: [{ text: m.content }],
-    }));
+  const contents = messages.map((m) => ({
+    role: m.role === "assistant" ? ("model" as const) : ("user" as const),
+    parts: [{ text: m.content.slice(0, 800) }],
+  }));
 
   const ai = new GoogleGenAI({ apiKey });
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash-lite",
       contents,
       config: {
         systemInstruction,
-        maxOutputTokens: 400,
-        temperature: 0.7,
+        maxOutputTokens: 200,
+        temperature: 0.6,
       },
     });
 

@@ -8,6 +8,24 @@ export type ClothingCategory =
   | "dress"
   | "one-piece";
 
+/** Canonical order and set of categories — use for tabs, dropdowns, and validation */
+export const CATEGORY_VALUES: readonly ClothingCategory[] = [
+  "top",
+  "bottom",
+  "outerwear",
+  "shoes",
+  "accessory",
+  "dress",
+  "one-piece",
+] as const;
+
+/** Normalize any string to a valid ClothingCategory (lowercase). Use when loading from storage or filtering. */
+export function normalizeCategory(value: string | undefined | null): ClothingCategory {
+  if (value == null) return "top";
+  const c = String(value).toLowerCase().trim();
+  return (CATEGORY_VALUES.includes(c as ClothingCategory) ? c : "top") as ClothingCategory;
+}
+
 /** Seasonality tag for weather-aware suggestions */
 export type Seasonality = "summer" | "spring" | "fall" | "winter" | "all-season";
 

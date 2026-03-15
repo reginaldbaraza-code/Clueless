@@ -7,15 +7,17 @@ import { MessageCircle, X, Send } from "lucide-react";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
+/** Keep context short to reduce token usage */
 function buildContext(items: { name: string; category: string; formality: string }[], stylePrefs: { defaultFormality?: string; lifestyle?: string } | null): string {
   const parts: string[] = [];
   if (items.length > 0) {
-    parts.push(`Closet has ${items.length} items. Examples: ${items.slice(0, 8).map((i) => `${i.name} (${i.category}, ${i.formality})`).join("; ")}.`);
+    const examples = items.slice(0, 4).map((i) => `${i.name} (${i.category})`).join(", ");
+    parts.push(`${items.length} items. Examples: ${examples}.`);
   } else {
-    parts.push("User hasn't added any closet items yet.");
+    parts.push("No closet items yet.");
   }
-  if (stylePrefs?.defaultFormality) parts.push(`Default formality: ${stylePrefs.defaultFormality}.`);
-  if (stylePrefs?.lifestyle) parts.push(`Lifestyle: ${stylePrefs.lifestyle}.`);
+  if (stylePrefs?.defaultFormality) parts.push(`Formality: ${stylePrefs.defaultFormality}`);
+  if (stylePrefs?.lifestyle) parts.push(stylePrefs.lifestyle);
   return parts.join(" ");
 }
 
@@ -81,7 +83,7 @@ export function ChatWidget() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--primary)] text-white shadow-[var(--shadow-lg)] transition hover:bg-[var(--primary-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 md:bottom-6"
+        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--primary)] text-white shadow-[var(--shadow-lg)] transition hover:bg-[var(--primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)] md:bottom-6"
         aria-label={open ? "Close chat" : "Open stylist chat"}
       >
         {open ? (

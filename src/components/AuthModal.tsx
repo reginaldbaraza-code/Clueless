@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Modal, ModalContent } from "./Modal";
 import { useAuth } from "@/context/AuthContext";
+import { X } from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
   const { signIn, signUp } = useAuth();
 
   const reset = () => {
@@ -23,6 +25,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setEmail("");
     setPassword("");
     setSubmitting(false);
+    setSignUpSuccess(false);
   };
 
   const handleClose = () => {
@@ -45,6 +48,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     }
     if (mode === "signup") {
       setError("");
+      setSignUpSuccess(true);
       setMode("signin");
       setEmail("");
       setPassword("");
@@ -54,10 +58,18 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} titleId="auth-modal-title">
+    <Modal isOpen={isOpen} onClose={handleClose} titleId="auth-modal-title" closeOnOverlayClick>
       <AnimatePresence>
         <ModalContent className="w-full max-w-sm p-6">
-          <h2 id="auth-modal-title" className="font-heading text-xl font-bold text-[var(--foreground)]">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="absolute right-4 top-4 rounded-lg p-1.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+          <h2 id="auth-modal-title" className="font-heading pr-10 text-xl font-bold text-[var(--foreground)]">
             {mode === "signin" ? "Sign in" : "Create account"}
           </h2>
           <p className="mt-1 text-sm text-[var(--text-muted)]">
@@ -102,6 +114,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {error}
               </p>
             )}
+            {signUpSuccess && mode === "signin" && (
+              <p className="text-sm text-green-600 dark:text-green-400" role="status">
+                Account created. Sign in below.
+              </p>
+            )}
             <div className="flex flex-col gap-2 pt-2">
               <button
                 type="submit"
@@ -111,11 +128,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {submitting ? "Please wait…" : mode === "signin" ? "Sign in" : "Sign up"}
               </button>
               <button
-                type="button"
-                onClick={() => {
-                  setMode(mode === "signin" ? "signup" : "signin");
-                  setError("");
-                }}
+              type="button"
+              onClick={() => {
+                setMode(mode === "signin" ? "signup" : "signin");
+                setError("");
+                setSignUpSuccess(false);
+              }}
                 className="text-sm text-[var(--text-muted)] hover:text-[var(--foreground)] underline"
               >
                 {mode === "signin"

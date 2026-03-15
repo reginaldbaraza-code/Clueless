@@ -106,10 +106,13 @@ export default function OutfitBuilderPage() {
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-3 flex items-center gap-2 rounded-full bg-[var(--primary-muted)] px-4 py-2 text-sm font-medium text-[var(--primary)]"
+              className="mt-3 flex flex-wrap items-center gap-2 rounded-full bg-[var(--primary-muted)] px-4 py-2 text-sm font-medium text-[var(--primary)]"
             >
-              <Sparkles className="h-4 w-4 shrink-0" />
+              <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
               Outfit saved. Wear counts updated.
+              <Link href="/outfits" className="font-semibold underline hover:no-underline">
+                View in Outfits
+              </Link>
             </motion.p>
           )}
           <button
@@ -148,10 +151,10 @@ export default function OutfitBuilderPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => addToSlot(key, item)}
-                        className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--primary)] shadow-[var(--shadow-sm)] transition hover:border-[var(--primary)] hover:bg-[var(--primary-muted)]/50"
+                        className="flex min-w-0 items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-left text-sm font-medium text-[var(--primary)] shadow-[var(--shadow-sm)] transition hover:border-[var(--primary)] hover:bg-[var(--primary-muted)]/50"
                       >
                         <ItemImage item={item} size="small" />
-                        <span>{item.name}</span>
+                        <span className="min-w-0 truncate">{item.name}</span>
                       </motion.button>
                     ))}
                   </div>

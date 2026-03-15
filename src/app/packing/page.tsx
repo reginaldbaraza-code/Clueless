@@ -68,9 +68,9 @@ export default function PackingPage() {
         ) : (
           <ul className="mt-4 flex flex-wrap gap-3">
             {list.map((item) => (
-              <li key={item.id} className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-muted)]/50 py-1 pl-1 pr-3">
+              <li key={item.id} className="flex max-w-full items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-muted)]/50 py-1 pl-1 pr-3">
                 <ItemImage item={item} size="small" />
-                <span className="text-sm font-medium text-[var(--foreground)]">{item.name}</span>
+                <span className="min-w-0 truncate text-sm font-medium text-[var(--foreground)]">{item.name}</span>
               </li>
             ))}
           </ul>

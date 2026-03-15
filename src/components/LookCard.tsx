@@ -41,16 +41,16 @@ export function LookCard({ items, title = "My look", showDownload = true }: Look
         <p className="text-center font-heading text-lg font-bold text-[var(--primary)]">{title}</p>
         <div className="flex flex-wrap justify-center gap-2">
           {items.map((item) => (
-            <span key={item.id} className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-muted)]/50 py-1.5 pl-1.5 pr-3">
+            <span key={item.id} className="flex max-w-full items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-muted)]/50 py-1.5 pl-1.5 pr-3">
               <ItemImage item={item} size="small" />
-              <span className="text-sm font-medium">{item.name}</span>
+              <span className="min-w-0 truncate text-sm font-medium">{item.name}</span>
             </span>
           ))}
         </div>
       </div>
       {showDownload && (
         <button type="button" onClick={handleDownload} disabled={downloading} className="btn-primary inline-flex items-center gap-2 text-sm">
-          <Download className="h-4 w-4 shrink-0" />
+          <Download className="h-4 w-4 shrink-0" aria-hidden />
           {downloading ? "Downloading…" : "Download as image"}
         </button>
       )}

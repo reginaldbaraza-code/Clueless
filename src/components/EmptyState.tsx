@@ -24,12 +24,13 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-muted)]/40 p-8 text-center ${className}`}
+      className={`flex flex-col items-center justify-center rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-muted)]/50 p-8 text-center ${className}`}
+      role="status"
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[var(--primary)]">
-        <Icon className="h-7 w-7" aria-hidden />
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--primary-muted)] text-[var(--primary)]">
+        <Icon className="h-6 w-6" aria-hidden />
       </div>
-      <h3 className="font-heading mt-4 text-lg font-semibold text-[var(--foreground)]">
+      <h3 className="font-heading mt-5 text-lg font-semibold text-[var(--foreground)]">
         {title}
       </h3>
       <p className="mt-2 max-w-sm text-sm text-[var(--text-muted)]">

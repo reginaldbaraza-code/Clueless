@@ -9,7 +9,9 @@ import {
   useState,
 } from "react";
 import type { WardrobeItem, Outfit } from "@/types/wardrobe";
+import { normalizeCategory } from "@/types/wardrobe";
 import type { StylePreferences } from "@/types/style";
+import { useAuth } from "@/context/AuthContext";
 import { storage } from "@/lib/storage";
 import { SEED_WARDROBE, generateId } from "@/lib/seed-data";
 
@@ -35,40 +37,70 @@ interface CluelessActions {
 const CluelessContext = createContext<(CluelessState & CluelessActions) | null>(null);
 
 export function CluelessProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+
   const [items, setItems] = useState<WardrobeItem[]>([]);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [stylePreferences, setStylePreferences] = useState<StylePreferences | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
+  // Load from storage when user logs in; clear when user logs out
   useEffect(() => {
-    const stored = storage.getWardrobe();
-    const storedOutfits = storage.getOutfits();
-    const storedStyle = storage.getStylePreferences();
-    if (stored.length > 0) {
-      setItems(stored);
-    } else {
-      setItems(SEED_WARDROBE);
-      storage.setWardrobe(SEED_WARDROBE);
+    if (!userId) {
+      setItems([]);
+      setOutfits([]);
+      setStylePreferences(null);
+      setHydrated(true);
+      return;
     }
-    setOutfits(storedOutfits);
+
+    const stored = storage.getWardrobe(userId);
+    const storedOutfits = storage.getOutfits(userId);
+    const storedStyle = storage.getStylePreferences(userId);
+
+    let itemsToUse = stored;
+    let outfitsToUse = storedOutfits;
+
+    if (stored.length > 0) {
+      const seedById = new Map(SEED_WARDROBE.map((s) => [s.id, s]));
+      const migrated = stored.map((item) => {
+        const seed = seedById.get(item.id);
+        const imageUrl = seed && !item.imageUrl?.trim() ? seed.imageUrl : item.imageUrl;
+        const category = normalizeCategory(item.category);
+        return { ...item, imageUrl, category };
+      });
+      const changed = migrated.some((m, i) => m.imageUrl !== stored[i].imageUrl || m.category !== stored[i].category);
+      if (changed) storage.setWardrobe(userId, migrated);
+      itemsToUse = migrated;
+    } else {
+      itemsToUse = [];
+      outfitsToUse = [];
+      storage.setWardrobe(userId, []);
+      storage.setOutfits(userId, []);
+    }
+
+    setItems(itemsToUse);
+    setOutfits(outfitsToUse);
     setStylePreferences(storedStyle);
     setHydrated(true);
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    storage.setWardrobe(items);
-  }, [hydrated, items]);
+    if (!hydrated || !userId) return;
+    const normalized = items.map((i) => ({ ...i, category: normalizeCategory(i.category) }));
+    storage.setWardrobe(userId, normalized);
+  }, [hydrated, userId, items]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    storage.setOutfits(outfits);
-  }, [hydrated, outfits]);
+    if (!hydrated || !userId) return;
+    storage.setOutfits(userId, outfits);
+  }, [hydrated, userId, outfits]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    storage.setStylePreferences(stylePreferences);
-  }, [hydrated, stylePreferences]);
+    if (!hydrated || !userId) return;
+    storage.setStylePreferences(userId, stylePreferences);
+  }, [hydrated, userId, stylePreferences]);
 
   const addItem = useCallback(
     (item: Omit<WardrobeItem, "id" | "createdAt" | "updatedAt">) => {
@@ -78,6 +110,7 @@ export function CluelessProvider({ children }: { children: React.ReactNode }) {
         id: generateId(),
         createdAt: now,
         updatedAt: now,
+        category: normalizeCategory(item.category),
         tags: item.tags ?? [],
       };
       setItems((prev) => [...prev, newItem]);

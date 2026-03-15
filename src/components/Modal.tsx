@@ -10,6 +10,8 @@ interface ModalProps {
   children: React.ReactNode;
   titleId?: string;
   closeOnOverlayClick?: boolean;
+  /** Optional ref to focus when modal closes (e.g. the button that opened it) */
+  focusReturnRef?: React.RefObject<HTMLElement | null>;
 }
 
 export function Modal({
@@ -18,14 +20,22 @@ export function Modal({
   children,
   titleId,
   closeOnOverlayClick = true,
+  focusReturnRef,
 }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
+  const handleClose = useCallback(() => {
+    onClose();
+    requestAnimationFrame(() => {
+      focusReturnRef?.current?.focus();
+    });
+  }, [onClose, focusReturnRef]);
+
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     },
-    [onClose]
+    [handleClose]
   );
 
   useEffect(() => {
@@ -47,9 +57,12 @@ export function Modal({
       aria-modal="true"
       aria-labelledby={titleId}
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={closeOnOverlayClick ? (e) => e.target === overlayRef.current && onClose() : undefined}
     >
-      <div className="absolute inset-0 bg-black/50" aria-hidden />
+      <div
+        className="absolute inset-0 bg-black/50"
+        aria-hidden
+        onClick={closeOnOverlayClick ? handleClose : undefined}
+      />
       {children}
     </div>
   );

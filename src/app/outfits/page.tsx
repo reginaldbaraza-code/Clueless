@@ -28,14 +28,13 @@ export default function OutfitsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5 sm:space-y-6">
       <div>
-        <h1 className="font-heading flex items-center gap-2 text-2xl font-bold text-[var(--foreground)]">
-          <Bookmark className="h-7 w-7 shrink-0 text-[var(--primary)]" />
-          Saved outfits
+        <h1 className="font-heading text-xl font-bold tracking-tight text-[var(--foreground)] sm:text-2xl">
+          Outfits
         </h1>
-        <p className="mt-1 text-[var(--text-muted)]">
-          Rate looks to improve recommendations.
+        <p className="mt-1 text-sm text-[var(--text-muted)]">
+          Saved looks. Rate to improve recommendations.
         </p>
       </div>
 
@@ -50,6 +49,7 @@ export default function OutfitsPage() {
         <ul className="space-y-6">
           {outfits.map((outfit) => {
             const outfitItems = getItemsForOutfit(outfit);
+            const missingCount = outfit.itemIds.length - outfitItems.length;
             return (
               <motion.li
                 key={outfit.id}
@@ -57,11 +57,16 @@ export default function OutfitsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="card overflow-hidden p-4"
               >
+                {missingCount > 0 && (
+                  <p className="mb-2 text-xs text-[var(--text-muted)]">
+                    {missingCount} item{missingCount > 1 ? "s" : ""} no longer in closet
+                  </p>
+                )}
                 <div className="flex flex-wrap items-center gap-3">
                   {outfitItems.map((item) => (
-                    <span key={item.id} className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-muted)]/50 py-1 pl-1 pr-2">
+                    <span key={item.id} className="flex max-w-full items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-muted)]/50 py-1 pl-1 pr-2">
                       <ItemImage item={item} size="small" />
-                      <span className="text-sm font-medium text-[var(--foreground)]">{item.name}</span>
+                      <span className="min-w-0 truncate text-sm font-medium text-[var(--foreground)]">{item.name}</span>
                     </span>
                   ))}
                 </div>

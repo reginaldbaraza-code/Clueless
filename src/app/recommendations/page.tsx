@@ -8,7 +8,7 @@ import { useClueless } from "@/context/CluelessContext";
 import { getRecommendedOutfits } from "@/lib/recommendations";
 import { ItemImage } from "@/components/ItemImage";
 import { EmptyState } from "@/components/EmptyState";
-import { MapPin, Shirt, Briefcase, Crown, Dumbbell, RotateCcw, Lightbulb, Cloud, Coffee } from "lucide-react";
+import { MapPin, Shirt, Briefcase, Crown, Dumbbell, RotateCcw, Lightbulb, Coffee } from "lucide-react";
 import type { Formality } from "@/types/wardrobe";
 
 const FORMALITY_OPTIONS: { value: Formality; label: string; Icon: typeof Shirt }[] = [
@@ -36,20 +36,18 @@ export default function RecommendationsPage() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5 sm:space-y-6">
       <div>
-        <h1 className="font-heading flex items-center gap-2 text-2xl font-bold text-[var(--foreground)]">
-          <Lightbulb className="h-7 w-7 shrink-0 text-[var(--primary)]" />
+        <h1 className="font-heading text-xl font-bold tracking-tight text-[var(--foreground)] sm:text-2xl">
           Recommendations
         </h1>
-        <p className="mt-1 text-[var(--text-muted)]">
-          Weather-aware, rule-based outfit suggestions. Enable location for live weather.
+        <p className="mt-1 text-sm text-[var(--text-muted)]">
+          Weather-aware outfit ideas. Enable location for live weather.
         </p>
       </div>
 
-      <section className="card p-6">
-        <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-          <Cloud className="h-4 w-4 shrink-0" />
+      <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
           Context
         </h2>
         <div className="mt-4 space-y-4">
@@ -126,13 +124,22 @@ export default function RecommendationsPage() {
           Suggested outfits
         </h2>
         {recommendations.length === 0 ? (
-          <EmptyState
-            icon={Lightbulb}
-            title="No outfits match right now"
-            description="Try relaxing formality, adding more items to your closet, or enabling weather for better suggestions."
-            action={{ label: "Open closet", href: "/closet" }}
-            secondary={{ label: "Style quiz", href: "/style-quiz" }}
-          />
+          items.length < 3 ? (
+            <EmptyState
+              icon={Lightbulb}
+              title="Add more items first"
+              description="Add at least 3 items to your closet (e.g. top, bottom, shoes) for better recommendations."
+              action={{ label: "Open closet", href: "/closet" }}
+            />
+          ) : (
+            <EmptyState
+              icon={Lightbulb}
+              title="No outfits match right now"
+              description="Try relaxing formality, adding more items to your closet, or enabling weather for better suggestions."
+              action={{ label: "Open closet", href: "/closet" }}
+              secondary={{ label: "Style quiz", href: "/style-quiz" }}
+            />
+          )
         ) : (
           <ul className="space-y-4">
             {recommendations.slice(0, 5).map((combo, idx) => (
@@ -144,9 +151,9 @@ export default function RecommendationsPage() {
                 className="card flex flex-wrap items-center gap-2 p-4"
               >
                 {combo.map((item) => (
-                  <span key={item.id} className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--primary-muted)]/50 py-1 pl-1 pr-3">
+                  <span key={item.id} className="flex max-w-full items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--primary-muted)]/50 py-1 pl-1 pr-3">
                     <ItemImage item={item} size="small" />
-                    <span className="text-sm font-medium text-[var(--primary)]">{item.name}</span>
+                    <span className="min-w-0 truncate text-sm font-medium text-[var(--primary)]">{item.name}</span>
                   </span>
                 ))}
               </motion.li>

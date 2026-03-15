@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useClueless } from "@/context/CluelessContext";
 import { ItemImage } from "@/components/ItemImage";
 import { Modal, ModalContent } from "@/components/Modal";
 import { EmptyState } from "@/components/EmptyState";
-import { Plus, X, LayoutGrid, Shirt, Box, Layers, Footprints, Gem, Sparkles } from "lucide-react";
+import { Plus, X, LayoutGrid, Shirt, Box, Layers, Footprints, Gem, Sparkles, Search } from "lucide-react";
+import type { ProductSearchResult } from "@/app/api/product-search/route";
 import type { WardrobeItem, ClothingCategory, Seasonality, Formality } from "@/types/wardrobe";
+import { normalizeCategory, CATEGORY_VALUES } from "@/types/wardrobe";
 
 const CATEGORY_LABELS: Record<WardrobeItem["category"], string> = {
   top: "Tops",
@@ -38,50 +40,73 @@ export default function ClosetPage() {
   const [filter, setFilter] = useState<WardrobeItem["category"] | "all">("all");
   const [showAdd, setShowAdd] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [addedToast, setAddedToast] = useState(false);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  const normalizedFilter = filter === "all" ? "all" : normalizeCategory(filter);
   const filtered =
-    filter === "all" ? items : items.filter((i) => i.category === filter);
+    filter === "all" ? items : items.filter((i) => normalizeCategory(i.category) === normalizedFilter);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-5 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-heading flex items-center gap-2 text-2xl font-bold text-[var(--foreground)]">
-            <Shirt className="h-7 w-7 shrink-0 text-[var(--primary)]" />
-            My closet
+          <h1 className="font-heading text-xl font-bold tracking-tight text-[var(--foreground)] sm:text-2xl">
+            Closet
           </h1>
-          <p className="mt-1 text-[var(--text-muted)]">
-            Your pieces are saved locally. Add or remove items anytime.
+          <p className="mt-1 text-sm text-[var(--text-muted)]">
+            Your pieces. Add or remove anytime.
           </p>
         </div>
-        <button type="button" onClick={() => setShowAdd(true)} className="btn-primary inline-flex shrink-0 items-center gap-2">
-          <Plus className="h-4 w-4 shrink-0" />
+        <button
+          ref={addButtonRef}
+          type="button"
+          onClick={() => setShowAdd(true)}
+          className="btn-primary inline-flex shrink-0 items-center gap-2"
+        >
+          <Plus className="h-4 w-4 shrink-0" aria-hidden />
           Add item
         </button>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
-        {(["all", ...(Object.keys(CATEGORY_LABELS) as WardrobeItem["category"][])] as const).map((cat) => {
+      <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible" role="tablist" aria-label="Filter by category">
+        {(["all", ...CATEGORY_VALUES] as const).map((cat) => {
           const Icon = CATEGORY_ICONS[cat];
           return (
-          <button
-            key={cat}
-            onClick={() => setFilter(cat)}
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition ${
-              filter === cat
-                ? "bg-[var(--primary)] text-white"
-                : "bg-[var(--primary-muted)] text-[var(--primary)] hover:bg-[var(--primary-muted)]/80"
-            }`}
-          >
-            <Icon className="h-3.5 w-3.5 shrink-0" />
-            {cat === "all" ? "All" : CATEGORY_LABELS[cat]}
-          </button>
+            <button
+              key={cat}
+              role="tab"
+              aria-selected={filter === cat}
+              onClick={() => setFilter(cat)}
+              className={`inline-flex shrink-0 items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition ${
+                filter === cat
+                  ? "bg-[var(--primary)] text-white"
+                  : "bg-[var(--surface-muted)] text-[var(--foreground)] hover:bg-[var(--border)]"
+              }`}
+            >
+              <Icon className="h-4 w-4 shrink-0" aria-hidden />
+              {cat === "all" ? "All" : CATEGORY_LABELS[cat]}
+            </button>
           );
         })}
       </div>
 
+      {items.length > 0 && (
+        filtered.length === 0 ? (
+          <div className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-muted)]/50 p-8 text-center">
+            <p className="text-[var(--text-muted)]">No items in this category yet.</p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              <button type="button" onClick={() => setFilter("all")} className="btn-secondary text-sm">
+                View all
+              </button>
+              <button type="button" onClick={() => setShowAdd(true)} className="btn-primary text-sm">
+                Add item
+              </button>
+            </div>
+          </div>
+        ) : (
       <motion.ul
         layout
-        className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4"
       >
         <AnimatePresence mode="popLayout">
           {filtered.map((item, i) => (
@@ -92,28 +117,21 @@ export default function ClosetPage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ delay: Math.min(i * 0.03, 0.15) }}
-              className="card group relative overflow-hidden"
+              className="card group relative overflow-hidden rounded-[var(--radius-card)]"
             >
-              <div className="aspect-square overflow-hidden bg-[var(--surface-muted)]">
+              <div className="aspect-square overflow-hidden rounded-t-[var(--radius-card)] bg-[var(--surface-muted)]">
                 <ItemImage item={item} size="card" />
               </div>
               <div className="p-3">
                 <p className="font-medium text-[var(--foreground)] truncate">
                   {item.name}
                 </p>
-                <p className="text-xs text-[var(--text-muted)]">
-                  {CATEGORY_LABELS[item.category]} · {item.formality}
+                <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+                  {CATEGORY_LABELS[item.category]}
+                  {item.wearCount != null && item.wearCount > 0 && (
+                    <> · Worn {item.wearCount}×</>
+                  )}
                 </p>
-                {item.wearCount != null && item.wearCount > 0 && (
-                  <p className="mt-1 text-xs text-[var(--primary)]">
-                    Worn {item.wearCount}×
-                  </p>
-                )}
-                {item.purchasePrice != null && item.purchasePrice > 0 && item.wearCount != null && item.wearCount > 0 && (
-                  <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-                    ${(item.purchasePrice / item.wearCount).toFixed(1)}/wear
-                  </p>
-                )}
               </div>
               <button
                 type="button"
@@ -136,15 +154,30 @@ export default function ClosetPage() {
           ))}
         </AnimatePresence>
       </motion.ul>
+        )
+      )}
+
+      {addedToast && (
+        <div
+          role="status"
+          className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-lg bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--surface)] shadow-lg"
+        >
+          Item added
+        </div>
+      )}
 
       <AnimatePresence>
         {showAdd && (
           <AddItemModal
             isOpen={showAdd}
             onClose={() => setShowAdd(false)}
+            focusReturnRef={addButtonRef}
             onAdd={(data) => {
               addItem(data);
               setShowAdd(false);
+              setAddedToast(true);
+              setTimeout(() => setAddedToast(false), 2500);
+              addButtonRef.current?.focus();
             }}
           />
         )}
@@ -162,14 +195,28 @@ export default function ClosetPage() {
   );
 }
 
+/** Best-effort category hint from product title */
+function inferCategoryFromTitle(title: string): ClothingCategory {
+  const t = title.toLowerCase();
+  if (/\b(shoes|sneakers|boots|heels|sandals|loafers)\b/.test(t)) return "shoes";
+  if (/\b(dress|dresses)\b/.test(t)) return "dress";
+  if (/\b(jacket|coat|blazer|vest|outerwear)\b/.test(t)) return "outerwear";
+  if (/\b(pants|jeans|trousers|chinos|shorts|skirt)\b/.test(t)) return "bottom";
+  if (/\b(bag|hat|scarf|belt|accessory)\b/.test(t)) return "accessory";
+  if (/\b(jumpsuit|romper|one-piece)\b/.test(t)) return "one-piece";
+  return "top";
+}
+
 function AddItemModal({
   isOpen,
   onClose,
   onAdd,
+  focusReturnRef,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (data: Omit<WardrobeItem, "id" | "createdAt" | "updatedAt">) => void;
+  focusReturnRef?: React.RefObject<HTMLElement | null>;
 }) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState<ClothingCategory>("top");
@@ -179,6 +226,25 @@ function AddItemModal({
   const [seasonality, setSeasonality] = useState<Seasonality>("all-season");
   const [waterproof, setWaterproof] = useState(false);
   const [nameError, setNameError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<ProductSearchResult[]>([]);
+  const [searchStatus, setSearchStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [searchError, setSearchError] = useState<string | null>(null);
+
+  const resetForm = () => {
+    setName("");
+    setCategory("top");
+    setImageUrl("");
+    setPurchasePrice("");
+    setFormality("casual");
+    setSeasonality("all-season");
+    setWaterproof(false);
+    setNameError("");
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchStatus("idle");
+    setSearchError(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,12 +266,109 @@ function AddItemModal({
     });
   };
 
+  const handleProductSearch = async () => {
+    const q = searchQuery.trim();
+    if (q.length < 2) return;
+    setSearchStatus("loading");
+    setSearchError(null);
+    setSearchResults([]);
+    try {
+      const res = await fetch(`/api/product-search?q=${encodeURIComponent(q)}`);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = data.error || "Search failed.";
+        setSearchError(
+          res.status === 503 && msg.toLowerCase().includes("serpapi")
+            ? "Product search isn’t set up. Add your item manually below."
+            : msg
+        );
+        setSearchStatus("error");
+        return;
+      }
+      setSearchResults(data.results ?? []);
+      setSearchStatus("done");
+    } catch {
+      setSearchError("Search request failed.");
+      setSearchStatus("error");
+    }
+  };
+
+  const handlePickProduct = (product: ProductSearchResult) => {
+    setName(product.title);
+    setImageUrl(product.thumbnail);
+    setCategory(inferCategoryFromTitle(product.title));
+    setSearchResults([]);
+    setSearchStatus("idle");
+    setSearchQuery("");
+  };
+
+  useEffect(() => {
+    if (isOpen) resetForm();
+  }, [isOpen]);
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} titleId="add-item-title">
+    <Modal isOpen={isOpen} onClose={onClose} titleId="add-item-title" focusReturnRef={focusReturnRef}>
       <ModalContent className="w-full max-w-md p-6">
         <h2 id="add-item-title" className="font-heading text-lg font-semibold text-[var(--foreground)]">
           Add item
         </h2>
+
+        <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 p-3">
+          <p className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">Search for a product</p>
+          <p className="mt-0.5 text-sm text-[var(--text-muted)]">Find the exact item and we’ll fill name + photo.</p>
+          <div className="mt-2 flex gap-2">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setSearchError(null); }}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleProductSearch())}
+              placeholder="e.g. navy blazer, white sneakers"
+              className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              aria-label="Product search"
+            />
+            <button
+              type="button"
+              onClick={handleProductSearch}
+              disabled={searchStatus === "loading" || searchQuery.trim().length < 2}
+              className="btn-primary inline-flex shrink-0 items-center gap-1.5 px-3 py-2 text-sm disabled:opacity-50"
+            >
+              {searchStatus === "loading" ? (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden />
+              ) : (
+                <Search className="h-4 w-4 shrink-0" aria-hidden />
+              )}
+              Search
+            </button>
+          </div>
+          {searchError && <p className="mt-2 text-sm text-red-600">{searchError}</p>}
+          {searchResults.length > 0 && (
+            <div className="mt-3 max-h-48 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2">
+              <p className="mb-2 text-xs text-[var(--text-muted)]">Tap one to use its name and photo</p>
+              <div className="grid grid-cols-3 gap-2">
+                {searchResults.map((product, idx) => (
+                  <button
+                    key={`${product.thumbnail}-${idx}`}
+                    type="button"
+                    onClick={() => handlePickProduct(product)}
+                    className="flex flex-col items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 p-1.5 text-left transition hover:border-[var(--primary)] hover:bg-[var(--primary-muted)]/30"
+                  >
+                    <img
+                      src={product.thumbnail}
+                      alt=""
+                      width={80}
+                      height={80}
+                      className="h-16 w-16 shrink-0 rounded object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <span className="line-clamp-2 w-full text-xs font-medium text-[var(--foreground)]">{product.title}</span>
+                    {product.price && <span className="w-full text-xs text-[var(--text-muted)]">{product.price}</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
             <label className="block text-sm font-medium text-[var(--foreground)]">
@@ -258,11 +421,11 @@ function AddItemModal({
               onChange={(e) => setCategory(e.target.value as ClothingCategory)}
               className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
             >
-              {(Object.keys(CATEGORY_LABELS) as ClothingCategory[]).map((cat) => (
-                <option key={cat} value={cat}>
-                  {CATEGORY_LABELS[cat]}
-                </option>
-              ))}
+{CATEGORY_VALUES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {CATEGORY_LABELS[cat]}
+                  </option>
+                ))}
             </select>
           </div>
           <div>
